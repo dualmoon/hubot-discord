@@ -95,13 +95,13 @@ class DiscordBot extends Adapter
 		else subMessages.push msg
 
 	send: (envelope, messages...) =>
-		@robot.logger.debug "sending a message. envelope is:\n#{util.inspect envelope}"
+		#@robot.logger.debug "sending a message. envelope is:\n#{util.inspect envelope}"
 		if messages.length > 0
 			message = messages.shift()
 			chunkedMessage = @chunkMessage message
 			if chunkedMessage.length > 0
 				chunk = chunkedMessage.shift()
-				@client.sendMessage envelope.user.message, chunk, (err) =>
+				@client.sendMessage envelope.message, chunk, (err) =>
 					remainingMessages = chunkedMessage.concat messages
 					if err then @robot.logger.error err
 					@send envelope, remainingMessages...

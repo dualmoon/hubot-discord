@@ -117,8 +117,9 @@ class DiscordBot extends Adapter
 			@client.sendMessage @rooms[envelope.room], "#{user} #{msg}", (err) ->
 				@robot.logger.error err
 		###
-		userStr = "#{envelope.user.name} " unless envelope.user.message instanceof PMChannel
-		@client.reply envelope.user.message, "#{userStr} #{msg}", (err) ->
+		@robot.logger.debug "Replying to #{envelope.user.name} in channel #{envelope.user.message.channel.name}"
+		userStr = "#{envelope.user.name} " unless envelope.user.message.channel instanceof Discord.PMChannel
+		@client.reply envelope.user.message, "@#{userStr}: #{msg}", (err) ->
 			@robot.logger.error err
 
 	debug: (log) =>

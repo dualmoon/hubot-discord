@@ -29,7 +29,7 @@ class DiscordBot extends Adapter
 		@rooms = {}
 		@direct_rooms = {}
 
-	run: ->
+	run: =>
 		@options =
 			email: process.env.HUBOT_DISCORD_EMAIL,
 			password: process.env.HUBOT_DISCORD_PASSWORD,
@@ -50,7 +50,7 @@ class DiscordBot extends Adapter
 			@client.login @options.email, @options.password, (err) ->
 				@robot.logger.error err
 
-	ready: ->
+	ready: =>
 		@robot.logger.info "Logged in: #{@client.user.username}"
 		@robot.name = @client.user.username.toLowerCase()
 		@robot.logger.info "Robot Name: #{@robot.name}"
@@ -61,7 +61,7 @@ class DiscordBot extends Adapter
 		@client.setStatus 'here', currentlyPlaying, (err) ->
 			@robot.logger.error err
 
-	message: (message) ->
+	message: (message) =>
 		# ignore messages from myself
 		return if message.author.id is @client.user.id
 
@@ -97,7 +97,7 @@ class DiscordBot extends Adapter
 				msg = msg.substring(breakIndex, msg.length)
 		else subMessages.push(msg)
 
-	send: (envelope, messages...) ->
+	send: (envelope, messages...) =>
 		if messages.length > 0
 			message = messages.shift()
 			chunkedMessage = @chunkMessage message
@@ -109,7 +109,7 @@ class DiscordBot extends Adapter
 					if err then @robot.logger.error err
 					@send envelope, remainingMessages...)
 
-	reply: (envelope, messages...) ->
+	reply: (envelope, messages...) =>
 		###
 		user = envelope.user.name
 		room = @direct_rooms[envelope.room] or @rooms[envelope.room]
@@ -121,19 +121,16 @@ class DiscordBot extends Adapter
 		@client.reply envelope.user.message, "#{userStr} #{msg}", (err) ->
 			@robot.logger.error err
 
-	debug: (log) ->
-		if @robot
-			@robot.logger.debug log
-		else
-			console.log "[--] DEBUG: #{log} | robot not available"
+	debug: (log) =>
+		@robot.logger.debug log
 
-	warn: (message) ->
+	warn: (message) =>
 		@robot.logger.warn message
 
-	error: (error) ->
+	error: (error) =>
 		@robot.logger.error error
 
-	disconnected: (message) ->
+	disconnected: (message) =>
 		@robot.logger.warn "Disconnected from server. #{message}"
 
 exports.use = (robot) ->

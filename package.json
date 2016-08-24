@@ -1,6 +1,6 @@
 {
   "name": "hubot-discord-ng",
-  "version": "1.2.18",
+  "version": "1.2.19",
   "description": "Hubot adapter for discord",
   "main": "src/discord.coffee",
   "scripts": {

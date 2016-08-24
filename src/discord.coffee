@@ -70,7 +70,6 @@ class DiscordBot extends Adapter
 		user.name = message.author.name
 		user.id = message.author.id
 		user.message = message
-		@rooms[message.channel.id] ?= message.channel
 
 		text = message.cleanContent
 
@@ -95,31 +94,17 @@ class DiscordBot extends Adapter
 		else subMessages.push(msg)
 
 	send: (envelope, messages...) =>
-		###
 		if messages.length > 0
 			message = messages.shift()
 			chunkedMessage = @chunkMessage message
 			if chunkedMessage.length > 0
 				chunk = chunkedMessage.shift()
-				room = @rooms[envelope.room]
-				@client.sendMessage room, chunk, ((err) =>
+				@client.sendMessage envelope.user.message, chunk, (err) =>
 					remainingMessages = chunkedMessage.concat messages
 					if err then @robot.logger.error err
-					@send envelope, remainingMessages...)
-		###
-		for msg in messages
-			for m in @chunkMessage msg
-				@client.sendMessage envelope.user.message, m, (err) ->
-					@robot.logger.error err
+					@send envelope, remainingMessages...
 
 	reply: (envelope, messages...) =>
-		###
-		user = envelope.user.name
-		room = @direct_rooms[envelope.room] or @rooms[envelope.room]
-		for msg in messages
-			@client.sendMessage @rooms[envelope.room], "#{user} #{msg}", (err) ->
-				@robot.logger.error err
-		###
 		@robot.logger.debug "Replying to #{envelope.user.name} in channel #{envelope.user.message.channel.name}"
 		@robot.logger.debug "envelope.room is #{envelope.room}"
 		for msg in messages

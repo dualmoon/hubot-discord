@@ -94,7 +94,7 @@ class DiscordBot extends Adapter
 				msg = msg.substring breakIndex, msg.length
 		else subMessages.push msg
 
-	send: (envelope, messages...) =>
+	send: (envelope, messages...) ->
 		#@robot.logger.debug "sending a message. envelope is:\n#{util.inspect envelope}"
 		# TODO: figure out a way to discriminate between basic sends and sends to someone specific or w/e
 		@robot.logger.debug "About to send message '#{messages[1]}' to #{envelope.user.name} at #{envelope.user.message.channel.name}"

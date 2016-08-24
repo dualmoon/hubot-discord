@@ -19,6 +19,7 @@ catch
 	{Robot, Adapter, EnterMessage, LeaveMessage, TopicMessage, TextMessage}  = prequire 'hubot'
 Discord = require 'discord.js'
 request = require 'request'
+util = require 'util'
 
 maxLength = parseInt process.env.HUBOT_MAX_MESSAGE_LENGTH || 2000
 currentlyPlaying = process.env.HUBOT_DISCORD_STATUS_MSG || ''

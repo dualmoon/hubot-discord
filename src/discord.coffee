@@ -95,7 +95,7 @@ class DiscordBot extends Adapter
 		else subMessages.push msg
 		return subMessages
 
-	send: (envelope, messages..., direct=false) ->
+	send: (envelope, direct=false, messages...) ->
 		@robot.logger.debug "About to send message '#{messages[0]}' to #{envelope.user.name} at #{envelope.user.message.channel.name}" if messages[0]?
 		if direct then destination is envelope.user.id else destination = envelope.user.message
 		if messages.length > 0

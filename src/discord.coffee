@@ -94,7 +94,7 @@ class DiscordBot extends Adapter
 		else subMessages.push msg
 
 	send: (envelope, messages...) =>
-		@robot.logger.debug "sending a message. envelope is:\n#{envelope}"
+		@robot.logger.debug "sending a message. envelope is:\n#{JSON.stringify envelope, null, '\t'}"
 		if messages.length > 0
 			message = messages.shift()
 			chunkedMessage = @chunkMessage message

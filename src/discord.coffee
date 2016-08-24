@@ -98,6 +98,7 @@ class DiscordBot extends Adapter
 		else subMessages.push(msg)
 
 	send: (envelope, messages...) =>
+		###
 		if messages.length > 0
 			message = messages.shift()
 			chunkedMessage = @chunkMessage message
@@ -108,6 +109,12 @@ class DiscordBot extends Adapter
 					remainingMessages = chunkedMessage.concat messages
 					if err then @robot.logger.error err
 					@send envelope, remainingMessages...)
+		###
+		for msg in messages
+			room = rooms[envelope.room]
+			for m in @chunkMessage msg
+				@client.sendMessage room, m, (err) ->
+					@robot.logger.error err
 
 	reply: (envelope, messages...) =>
 		###
@@ -119,8 +126,9 @@ class DiscordBot extends Adapter
 		###
 		@robot.logger.debug "Replying to #{envelope.user.name} in channel #{envelope.user.message.channel.name}"
 		userStr = "#{envelope.user.name} " unless envelope.user.message.channel instanceof Discord.PMChannel
-		@client.reply envelope.user.message, "@#{userStr}: #{msg}", (err) ->
-			@robot.logger.error err
+		for msg in message
+			@client.reply envelope.user.message, "@#{userStr}: #{msg}", (err) ->
+				@robot.logger.error err
 
 	debug: (log) =>
 		@robot.logger.debug "(discord.js) #{log}"

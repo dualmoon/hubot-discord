@@ -1,6 +1,6 @@
 {
-  "name": "hubot-discord",
-  "version": "1.2.2",
+  "name": "hubot-discord-ng",
+  "version": "1.2.3",
   "description": "Hubot adapter for discord",
   "main": "src/discord.coffee",
   "scripts": {
@@ -19,8 +19,8 @@
   },
   "repository": {
       "type": "git",
-      "url": "https://github.com/thetimpanist/hubot-discord"
+      "url": "https://github.com/dualmoon/hubot-discord-ng"
   },
-  "author": "Chuck Newport",
+  "author": "Ashley Siobhan <luna@neko.lgbt>",
   "license": "ISC"
 }

@@ -122,16 +122,16 @@ class DiscordBot extends Adapter
 			@robot.logger.error err
 
 	debug: (log) ->
-		@client.logger.debug log
+		@robot.logger.debug log
 
 	warn: (message) ->
-		@client.logger.warn message
+		@robot.logger.warn message
 
 	error: (error) ->
-		@client.logger.error error
+		@robot.logger.error error
 
 	disconnected: (message) ->
-		@client.logger.warn "Disconnected from server. #{message}"
+		@robot.logger.warn "Disconnected from server. #{message}"
 
 exports.use = (robot) ->
 	new DiscordBot robot

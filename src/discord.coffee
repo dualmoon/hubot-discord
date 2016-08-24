@@ -15,7 +15,7 @@
 #   HUBOT_DISCORD_BOTS_WEB_TOKEN - bots.discord.pw auth token
 #   HUBOT_DISCORD_STATUS_MSG - Status message to set for "currently playing game"
 #   
-# Notes:
+# Notes:ffee-script": ">=1
 # 
 
 try
@@ -103,30 +103,16 @@ class DiscordBot extends Adapter
 		return subMessages
 
 	send: (envelope, messages...) ->
-		for msg in messages
-			room = rooms[envelope.room]
-			if (replyInPrivate)
-				try
-					user = envelope.user.id
-				catch err
-					@robot.logger.debug "Error fetching user id from envelope - #{err}"
-					user = room
-				checkPrivateMsgNotif = "@user, check your messages for help."
-				if(process.env.HUBOT_DISCORD_HELP_MESSAGE)
-					checkPrivateMsgNotif = process.env.HUBOT_DISCORD_HELP_MESSAGE            
-				try
-					if(envelope.message and envelope.message.match(/help(?:\s+(.*))?$/))
-						for m in this.chunkMessage msg
-							@client.sendMessage @client.users.get("id", user), m, (err) -> 
-								@robot.logger.debug  "Error parsing users from client - #{err}"
-						@client.sendMessage room, checkPrivateMsgNotif.replace /user/, user , (err) ->
-							@robot.logger.debug "Error sending message privately - #{err}"
-					else
-						@client.sendMessage(room, zSWC+m, (err) -> @robot.logger.error err) for m in this.chunkMessage msg
-				catch err
-					@robot.logger.debug "Couldn't send message - #{err}"
-			else
-				@client.sendMessage(room, zSWC+m, (err) -> @robot.logger.error err) for m in this.chunkMessage msg
+		if messages.length > 0
+			message = messages.shift()
+			chunkedMessage = @chunkMessage message
+			if chunkedMessage.length > 0
+				chunk = chunkedMessage.shift()
+				room = rooms[envelope.room]
+				@client.sendMessage room, chunk, ((err) =>
+					remainingMessages = chunkedMessage.concat messages
+					if err them @robot.logger.error err
+					@send envelope, remainingMessages...)
 
 	reply: (envelope, messages...) ->
 		# discord.js reply function looks for a 'sender' which doesn't 

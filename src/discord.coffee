@@ -5,18 +5,12 @@
 #   None
 #
 # Configuration:
-#   HUBOT_DISCORD_HELP_REPLY_IN_PRIVATE - whether or not to reply to help messages in private, defaults to false
 #   HUBOT_MAX_MESSAGE_LENGTH - maximum allowable message length (defaults to 2000, discord's default)
 #   HUBOT_DISCORD_EMAIL - authentication email for bot account (optional)
 #   HUBOT_DISCORD_PASSWORD - authentication password for bot account (optional)
 #   HUBOT_DISCORD_TOKEN - authentication token for bot
-#   HUBOT_DISCORD_CARBON_TOKEN - Carbonitex.net bot authentication
-#   HUBOT_DISCORD_BOTS_WEB_USER - bots.discord.pw user id for bot
-#   HUBOT_DISCORD_BOTS_WEB_TOKEN - bots.discord.pw auth token
 #   HUBOT_DISCORD_STATUS_MSG - Status message to set for "currently playing game"
-#   
-# Notes:ffee-script": ">=1
-# 
+#
 
 try
 	{Robot, Adapter, EnterMessage, LeaveMessage, TopicMessage, TextMessage}  = require 'hubot'
@@ -26,20 +20,14 @@ catch
 Discord = require 'discord.js'
 request = require 'request'
 
-rooms = {}
-
 maxLength = parseInt process.env.HUBOT_MAX_MESSAGE_LENGTH || 2000
-replyInPrivate = process.env.HUBOT_DISCORD_HELP_REPLY_IN_PRIVATE || false
-carbonToken = process.env.HUBOT_DISCORD_CARBON_TOKEN
-discordBotsWebUser = process.env.HUBOT_DISCORD_BOTS_WEB_USER
-discordBotsWebToken = process.env.HUBOT_DISCORD_BOTS_WEB_TOKEN
 currentlyPlaying = process.env.HUBOT_DISCORD_STATUS_MSG || ''
-zSWC = '\u200B'
 
 class DiscordBot extends Adapter
-	constructor: (robot)->
+	constructor: (@robot) ->
 		super
-		@robot = robot
+		@rooms = {}
+		@direct_rooms = {}
 
 	run: ->
 		@options =
@@ -50,7 +38,11 @@ class DiscordBot extends Adapter
 		@client = new Discord.Client {forceFetchUsers: true, autoReconnect: true}
 		@client.on 'ready', @ready
 		@client.on 'message', @message
-				
+		@client.on 'error', @error
+		@client.on 'debug', @debug
+		@client.on 'warn', @warn
+		@client.on 'disconnected', @disconnected
+
 		if @options.token?
 			@client.loginWithToken @options.token, @options.email, @options.password, (err) ->
 				@robot.logger.error err
@@ -58,20 +50,18 @@ class DiscordBot extends Adapter
 			@client.login @options.email, @options.password, (err) ->
 				@robot.logger.error err
 
-	ready: =>
+	ready: ->
 		@robot.logger.info "Logged in: #{@client.user.username}"
 		@robot.name = @client.user.username.toLowerCase()
 		@robot.logger.info "Robot Name: #{@robot.name}"
 		@emit 'connected'
 
 		# post-connect actions
-		rooms[channel.id] = channel for channel in @client.channels
-		setInterval @updateCarbonitex, 600000
-		setInterval @updateDiscordBotsWeb, 60000
+		@rooms[channel.id] = channel for channel in @client.channels
 		@client.setStatus 'here', currentlyPlaying, (err) ->
 			@robot.logger.error err
 
-	message: (message) =>
+	message: (message) ->
 		# ignore messages from myself
 		return if message.author.id is @client.user.id
 
@@ -79,16 +69,22 @@ class DiscordBot extends Adapter
 		user.room = message.channel.id
 		user.name = message.author.name
 		user.id = message.author.id
-		rooms[message.channel.id] ?= message.channel
+		user.message = message
 
-		text = message.cleanContent 
-		if (message.channel instanceof Discord.PMChannel)
+		text = message.cleanContent
+
+		# If the message comes from a PM/DM then prepend the bot name
+		# unless it's already there so we can properly match script commands
+		if message.channel instanceof Discord.PMChannel
 			text = "#{@robot.name}: #{text}" if not text.match new RegExp( "^@?#{@robot.name}" )
+			@direct_rooms[user.name] = user.room
+		else
+			@rooms[message.channel.id] = message.channel
 
 		@robot.logger.debug text
 		@receive new TextMessage( user, text, message.id )
-		 
-	chunkMessage: (msg) =>
+
+	chunkMessage: (msg) ->
 		subMessages = []
 		if(msg.length > maxLength)
 			while msg.length > 0
@@ -100,7 +96,6 @@ class DiscordBot extends Adapter
 				breakIndex++ if breakIndex isnt maxLength
 				msg = msg.substring(breakIndex, msg.length)
 		else subMessages.push(msg)
-		return subMessages
 
 	send: (envelope, messages...) ->
 		if messages.length > 0
@@ -108,56 +103,32 @@ class DiscordBot extends Adapter
 			chunkedMessage = @chunkMessage message
 			if chunkedMessage.length > 0
 				chunk = chunkedMessage.shift()
-				room = rooms[envelope.room]
+				room = @rooms[envelope.room]
 				@client.sendMessage room, chunk, ((err) =>
 					remainingMessages = chunkedMessage.concat messages
 					if err then @robot.logger.error err
 					@send envelope, remainingMessages...)
 
 	reply: (envelope, messages...) ->
-		# discord.js reply function looks for a 'sender' which doesn't 
-		# exist in our envelope object
+		###
 		user = envelope.user.name
+		room = @direct_rooms[envelope.room] or @rooms[envelope.room]
 		for msg in messages
-			@client.sendMessage rooms[envelope.room], "#{zSWC}#{user} #{msg}", (err) ->
-						@robot.logger.error err
-	
-	updateDiscordBotsWeb: ->
-		if discordBotsWebToken? and discordBotsWebUser?
-			@robot.logger.debug 'Updating discord bots'
-			@robot.logger.debug "#{@robot.name} is on #{@client.servers.length} servers"
-			requestBody =
-				method: 'POST'
-				url: "https://bots.discord.pw/api/bots/#{discordBotsWebUser}/stats"
-				headers:
-					Authorization: discordBotsWebToken
-				body:
-					server_count: @clients.servers.length
-				json: true
-			@doRequest requestBody
-
-	updateCarbonitex: ->
-		if carbonToken?
-			@robot.logger.debug 'Updating Carbonitex'
-			@robot.logger.debug "#{@robot.name} is on #{@client.servers.length} servers"
-			requestBody =
-				url: 'https://www.carbonitex.net/discord/data/botdata.php'
-				body:
-					key: carbonToken
-					servercount: @client.servers.length
-				json: true
-			@doRequest requestBody
-
-	doRequest: (requestBody) ->
-		request requestBody, (err, response, body) ->
-			if not err and response.statusCode is 200
-				@robot.logger.debug body
-			else if err
+			@client.sendMessage @rooms[envelope.room], "#{user} #{msg}", (err) ->
 				@robot.logger.error err
-			else
-				@robot.logger.error "Bad request or other error - #{response.body.error}"
-				@robot.logger.error requestBody
+		###
+		userStr = "#{envelope.user.name} " unless envelope.user.message instanceof PMChannel
+		@client.reply envelope.user.message, "#{userStr} #{msg}", (err) ->
+			@robot.logger.error err
 
+	debug: (log) ->
+		@client.logger.debug log
+
+	warn: (message) ->
+		@client.logger.warn message
+
+	disconnected: (message) ->
+		@client.logger.warn "Disconnected from server. #{message}"
 
 exports.use = (robot) ->
 	new DiscordBot robot

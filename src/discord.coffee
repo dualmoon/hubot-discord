@@ -19,10 +19,10 @@
 # 
 
 try
-		{Robot, Adapter, EnterMessage, LeaveMessage, TopicMessage, TextMessage}  = require 'hubot'
+	{Robot, Adapter, EnterMessage, LeaveMessage, TopicMessage, TextMessage}  = require 'hubot'
 catch
-		prequire = require( 'parent-require' )
-		{Robot, Adapter, EnterMessage, LeaveMessage, TopicMessage, TextMessage}  = prequire 'hubot'
+	prequire = require( 'parent-require' )
+	{Robot, Adapter, EnterMessage, LeaveMessage, TopicMessage, TextMessage}  = prequire 'hubot'
 Discord = require 'discord.js'
 request = require 'request'
 

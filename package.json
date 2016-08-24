@@ -21,6 +21,11 @@
       "type": "git",
       "url": "https://github.com/dualmoon/hubot-discord-ng"
   },
+  "keywords": [
+      "hubot",
+      "discord",
+      "hubot-adapters"
+  ],
   "author": "Ashley Siobhan <luna@neko.lgbt>",
   "license": "ISC"
 }

@@ -111,7 +111,7 @@ class DiscordBot extends Adapter
 				room = rooms[envelope.room]
 				@client.sendMessage room, chunk, ((err) =>
 					remainingMessages = chunkedMessage.concat messages
-					if err them @robot.logger.error err
+					if err then @robot.logger.error err
 					@send envelope, remainingMessages...)
 
 	reply: (envelope, messages...) ->

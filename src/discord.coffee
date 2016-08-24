@@ -96,9 +96,9 @@ class DiscordBot extends Adapter
 		return subMessages
 
 	send: (envelope, messages...) ->
-		#@robot.logger.debug "sending a message. envelope is:\n#{util.inspect envelope}"
+		@robot.logger.debug "sending a message. envelope is:\n#{util.inspect envelope}"
 		# TODO: figure out a way to discriminate between basic sends and sends to someone specific or w/e
-		@robot.logger.debug "About to send message '#{messages[0]}' to #{envelope.user.name} at #{envelope.user.message.channel.name}"
+		@robot.logger.debug "About to send message '#{messages[0]}' to #{envelope.user.name} at #{envelope.user.message.channel.name}" if messages[0]?
 		if messages.length > 0
 			message = messages.shift()
 			chunkedMessage = @chunkMessage message

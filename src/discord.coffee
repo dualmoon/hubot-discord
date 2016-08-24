@@ -70,16 +70,13 @@ class DiscordBot extends Adapter
 		user.name = message.author.name
 		user.id = message.author.id
 		user.message = message
+		@rooms[message.channel.id] ?= message.channel
 
 		text = message.cleanContent
 
-		# If the message comes from a PM/DM then prepend the bot name
-		# unless it's already there so we can properly match script commands
 		if message.channel instanceof Discord.PMChannel
+			@robot.logger.debug 'Message channel is PM, prepending bot name for matching purposes.'
 			text = "#{@robot.name}: #{text}" if not text.match new RegExp( "^@?#{@robot.name}" )
-			@direct_rooms[user.name] = user.room
-		else
-			@rooms[message.channel.id] = message.channel
 
 		@robot.logger.debug text
 		@receive new TextMessage( user, text, message.id )
@@ -110,6 +107,8 @@ class DiscordBot extends Adapter
 					if err then @robot.logger.error err
 					@send envelope, remainingMessages...)
 		###
+		@robot.logger.debug "Sending a message to room #{envelope.room}. Messages is #{message.length} long."
+		@robot.logger.debug "@rooms[#{envelope.room}] is #{@rooms[envelope.room]}"
 		for msg in messages
 			room = @rooms[envelope.room]
 			for m in @chunkMessage msg
@@ -125,9 +124,8 @@ class DiscordBot extends Adapter
 				@robot.logger.error err
 		###
 		@robot.logger.debug "Replying to #{envelope.user.name} in channel #{envelope.user.message.channel.name}"
-		userStr = "#{envelope.user.name} " unless envelope.user.message.channel instanceof Discord.PMChannel
 		for msg in messages
-			@client.reply envelope.user.message, "@#{userStr}: #{msg}", (err) ->
+			@client.reply envelope.user.message, msg, (err) ->
 				@robot.logger.error err
 
 	debug: (log) =>

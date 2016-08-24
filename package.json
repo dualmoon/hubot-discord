@@ -1,6 +1,6 @@
 {
   "name": "hubot-discord-ng",
-  "version": "1.2.30",
+  "version": "1.2.31",
   "description": "Hubot adapter for discord",
   "main": "src/discord.coffee",
   "scripts": {
@@ -15,16 +15,16 @@
     "hubot": ">=2.0"
   },
   "devDependencies": {
-      "coffee-script": ">=1.2.0"
+    "coffee-script": ">=1.2.0"
   },
   "repository": {
-      "type": "git",
-      "url": "https://github.com/dualmoon/hubot-discord-ng"
+    "type": "git",
+    "url": "https://github.com/dualmoon/hubot-discord-ng"
   },
   "keywords": [
-      "hubot",
-      "discord",
-      "hubot-adapters"
+    "hubot",
+    "discord",
+    "hubot-adapters"
   ],
   "author": "Ashley Siobhan <luna@neko.lgbt>",
   "license": "ISC"

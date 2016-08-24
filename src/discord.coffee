@@ -97,7 +97,7 @@ class DiscordBot extends Adapter
 
 	send: (envelope, direct=false, messages...) ->
 		@robot.logger.debug "About to send message '#{messages[0]}' to #{envelope.user.name} at #{envelope.user.message.channel.name}" if messages[0]?
-		if direct then destination is envelope.user.id else destination = envelope.user.message
+		if direct then destination = envelope.user.id else destination = envelope.user.message
 		if messages.length > 0
 			message = messages.shift()
 			chunkedMessage = @chunkMessage message

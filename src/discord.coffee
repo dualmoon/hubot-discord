@@ -93,6 +93,7 @@ class DiscordBot extends Adapter
 				breakIndex++ if breakIndex isnt maxLength
 				msg = msg.substring breakIndex, msg.length
 		else subMessages.push msg
+		return subMessages
 
 	send: (envelope, messages...) ->
 		#@robot.logger.debug "sending a message. envelope is:\n#{util.inspect envelope}"

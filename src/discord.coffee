@@ -107,12 +107,9 @@ class DiscordBot extends Adapter
 					if err then @robot.logger.error err
 					@send envelope, remainingMessages...)
 		###
-		@robot.logger.debug "Sending a message to room #{envelope.room}. Messages is #{messages.length} long."
-		@robot.logger.debug "@rooms[#{envelope.room}] is #{@rooms[envelope.room]}"
 		for msg in messages
-			room = @rooms[envelope.room]
 			for m in @chunkMessage msg
-				@client.sendMessage room, m, (err) ->
+				@client.sendMessage envelope.user.message, m, (err) ->
 					@robot.logger.error err
 
 	reply: (envelope, messages...) =>

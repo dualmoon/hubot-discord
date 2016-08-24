@@ -82,18 +82,19 @@ class DiscordBot extends Adapter
 
 	chunkMessage: (msg) ->
 		subMessages = []
-		if(msg.length > maxLength)
+		if msg.length > maxLength
 			while msg.length > 0
 				# Split message at last line break, if it exists
-				chunk = msg.substring(0, maxLength)
+				chunk = msg.substring 0, maxLength
 				breakIndex = if chunk.lastIndexOf('\n') isnt -1 then chunk.lastIndexOf('\n') else maxLength
-				subMessages.push msg.substring(0, breakIndex)
+				subMessages.push msg.substring 0, breakIndex
 				# Skip char if split on line break
 				breakIndex++ if breakIndex isnt maxLength
-				msg = msg.substring(breakIndex, msg.length)
-		else subMessages.push(msg)
+				msg = msg.substring breakIndex, msg.length
+		else subMessages.push msg
 
 	send: (envelope, messages...) =>
+		@robot.logger.debug "sending a message. envelope is:\n#{envelope}"
 		if messages.length > 0
 			message = messages.shift()
 			chunkedMessage = @chunkMessage message
@@ -106,7 +107,6 @@ class DiscordBot extends Adapter
 
 	reply: (envelope, messages...) =>
 		@robot.logger.debug "Replying to #{envelope.user.name} in channel #{envelope.user.message.channel.name}"
-		@robot.logger.debug "envelope.room is #{envelope.room}"
 		for msg in messages
 			@client.reply envelope.user.message, msg, (err) ->
 				@robot.logger.error err

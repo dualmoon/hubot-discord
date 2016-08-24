@@ -127,6 +127,9 @@ class DiscordBot extends Adapter
 	warn: (message) ->
 		@client.logger.warn message
 
+	error: (error) ->
+		@client.logger.error error
+
 	disconnected: (message) ->
 		@client.logger.warn "Disconnected from server. #{message}"
 

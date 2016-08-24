@@ -111,7 +111,7 @@ class DiscordBot extends Adapter
 					@send envelope, remainingMessages...)
 		###
 		for msg in messages
-			room = rooms[envelope.room]
+			room = @rooms[envelope.room]
 			for m in @chunkMessage msg
 				@client.sendMessage room, m, (err) ->
 					@robot.logger.error err
@@ -126,7 +126,7 @@ class DiscordBot extends Adapter
 		###
 		@robot.logger.debug "Replying to #{envelope.user.name} in channel #{envelope.user.message.channel.name}"
 		userStr = "#{envelope.user.name} " unless envelope.user.message.channel instanceof Discord.PMChannel
-		for msg in message
+		for msg in messages
 			@client.reply envelope.user.message, "@#{userStr}: #{msg}", (err) ->
 				@robot.logger.error err
 

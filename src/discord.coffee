@@ -122,7 +122,10 @@ class DiscordBot extends Adapter
 			@robot.logger.error err
 
 	debug: (log) ->
-		@robot.logger.debug log
+		if @robot
+			@robot.logger.debug log
+		else
+			console.log "[--] DEBUG: #{log} | robot not available"
 
 	warn: (message) ->
 		@robot.logger.warn message

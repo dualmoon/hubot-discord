@@ -110,7 +110,7 @@ class DiscordBot extends Adapter
 					if err then @robot.logger.error err
 					@send envelope, remainingMessages...
 		###
-		for msg in message
+		for msg in messages
 			for m in @chunkMessage msg
 				@client.sendMessage envelope.user.message, m, (err) ->
 					@robot.logger.error err

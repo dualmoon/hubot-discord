@@ -18,7 +18,6 @@ catch
 	prequire = require( 'parent-require' )
 	{Robot, Adapter, EnterMessage, LeaveMessage, TopicMessage, TextMessage}  = prequire 'hubot'
 Discord = require 'discord.js'
-request = require 'request'
 util = require 'util'
 
 maxLength = parseInt process.env.HUBOT_MAX_MESSAGE_LENGTH || 2000
@@ -119,13 +118,13 @@ class DiscordBot extends Adapter
 		@robot.logger.debug "(discord.js) #{log}"
 
 	warn: (message) =>
-		@robot.logger.warn "(discord.js) #{message}"
+		@robot.logger.warning "(discord.js) #{message}"
 
 	error: (error) =>
 		@robot.logger.error "(discord.js) #{error}"
 
 	disconnected: (message) =>
-		@robot.logger.warn "Disconnected from server. #{message}"
+		@robot.logger.warning "Disconnected from server. #{message}"
 
 exports.use = (robot) ->
 	new DiscordBot robot

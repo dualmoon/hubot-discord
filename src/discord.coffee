@@ -99,6 +99,7 @@ class DiscordBot extends Adapter
 		@robot.logger.debug "sending a message. envelope is:\n#{util.inspect envelope}"
 		# TODO: figure out a way to discriminate between basic sends and sends to someone specific or w/e
 		@robot.logger.debug "About to send message '#{messages[0]}' to #{envelope.user.name} at #{envelope.user.message.channel.name}" if messages[0]?
+		###
 		if messages.length > 0
 			message = messages.shift()
 			chunkedMessage = @chunkMessage message
@@ -108,6 +109,11 @@ class DiscordBot extends Adapter
 					remainingMessages = chunkedMessage.concat messages
 					if err then @robot.logger.error err
 					@send envelope, remainingMessages...
+		###
+		for msg in message
+			for m in @chunkMessage msg
+				@client.sendMessage envelope.user.message, m, (err) ->
+					@robot.logger.error err
 
 	reply: (envelope, messages...) =>
 		@robot.logger.debug "Replying to #{envelope.user.name} in channel #{envelope.user.message.channel.name}"

@@ -44,11 +44,13 @@ class DiscordBot extends Adapter
 		@client.on 'disconnected', @disconnected
 
 		if @options.token?
-			@client.loginWithToken @options.token, @options.email, @options.password, (err) ->
-				@robot.logger.error err
+			@client.loginWithToken @options.token, @options.email, @options.password, (err) =>
+				if err
+					@robot.logger.error err
 		else
-			@client.login @options.email, @options.password, (err) ->
-				@robot.logger.error err
+			@client.login @options.email, @options.password, (err) =>
+				if err
+					@robot.logger.error err
 
 	ready: =>
 		@robot.logger.info "Logged in: #{@client.user.username}"
@@ -58,8 +60,9 @@ class DiscordBot extends Adapter
 
 		# post-connect actions
 		@rooms[channel.id] = channel for channel in @client.channels
-		@client.setStatus 'here', currentlyPlaying, (err) ->
-			@robot.logger.error err
+		@client.setStatus 'here', currentlyPlaying, (err) =>
+			if err
+				@robot.logger.error err
 
 	message: (message) =>
 		# ignore messages from myself
@@ -80,7 +83,7 @@ class DiscordBot extends Adapter
 		@robot.logger.debug text
 		@receive new TextMessage( user, text, message.id )
 
-	chunkMessage: (msg) ->
+	chunkMessage: (msg) =>
 		subMessages = []
 		if msg.length > maxLength
 			while msg.length > 0
@@ -94,7 +97,7 @@ class DiscordBot extends Adapter
 		else subMessages.push msg
 		return subMessages
 
-	send: (envelope, messages...) ->
+	send: (envelope, messages...) =>
 		@robot.logger.debug "sending a message. envelope is:\n#{util.inspect envelope}"
 		# TODO: figure out a way to discriminate between basic sends and sends to someone specific or w/e
 		@robot.logger.debug "About to send message '#{messages[0]}' to #{envelope.user.name} at #{envelope.user.message.channel.name}" if messages[0]?
@@ -105,14 +108,16 @@ class DiscordBot extends Adapter
 				chunk = chunkedMessage.shift()
 				@client.sendMessage envelope.user.message, chunk, (err) =>
 					remainingMessages = chunkedMessage.concat messages
-					if err then @robot.logger.error err
+					if err
+						@robot.logger.error err
 					@send envelope, remainingMessages...
 
 	reply: (envelope, messages...) =>
 		@robot.logger.debug "Replying to #{envelope.user.name} in channel #{envelope.user.message.channel.name}"
 		for msg in messages
-			@client.reply envelope.user.message, msg, (err) ->
-				@robot.logger.error err
+			@client.reply envelope.user.message, msg, (err) =>
+				if err
+					@robot.logger.error err
 
 	debug: (log) =>
 		@robot.logger.debug "(discord.js) #{log}"
